@@ -86,14 +86,7 @@ Prim2.markers %>%
   slice_head(n = 10) %>%
   ungroup() -> top10
 DoHeatmap(Prim2, features = top10$gene) + NoLegend()
-new_cluster_ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
-                     "NK", "DC", "Platelet", "Additional1", "Additional2", "Additional3", "Additional4", "Additional15")
-Prim2$seurat_clusters <- factor(Prim2$seurat_clusters, levels = levels(Prim2$seurat_clusters), labels = new_cluster_ids)
-DimPlot(Prim2, reduction = "umap", group.by ="seurat_clusters",label = TRUE, pt.size = 0.5) + NoLegend()
-library(ggplot2)
-plot <- DimPlot(Prim2, reduction = "umap", label = TRUE, label.size = 4.5) + xlab("UMAP 1") + ylab("UMAP 2") +
-  theme(axis.title = element_text(size = 18), legend.text = element_text(size = 18)) + guides(colour = guide_legend(override.aes = list(size = 10)))
-plot
+
 
 
 
