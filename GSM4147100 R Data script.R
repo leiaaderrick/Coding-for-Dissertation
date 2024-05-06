@@ -1,7 +1,7 @@
+#install dplyr, patchwork and Seurat 
 library(dplyr)
 library(patchwork)
 library(Seurat)
-DataM3 <-Read10X(data.dir = "C:/Users/leiah/OneDrive - University of Southampton/Dissertation/DataM3")
 DataM3 <-Read10X(data.dir = "C:/Users/lhd1g21/OneDrive - University of Southampton/Dissertation/DataM3")
 # Example work for Metastatic data (DataM3)
 
@@ -39,13 +39,12 @@ library(clustree)
 clustree(Meta3)
 head(Idents(Meta3), 5)
 Meta3 <- RunUMAP(Meta3, dims = 1:10)
-
-BiocManager::install('ShinyCell')
-library(ShinyCell)
-scConf=createConfig(Meta3)
-
 DimPlot(Meta3, reduction = "umap")
 
+BiocManager::install('celldex')
+BiocManager::install('SingleR')
+BiocManager::install('pheatmap')
+BiocManager::install('tidyverse')
 library(celldex)
 library(SingleR)
 library(pheatmap)
@@ -55,7 +54,6 @@ Meta3_counts <- GetAssayData(Meta3, slot = 'counts')
 pred <- SingleR(test = Meta3_counts,
         ref = ref,
         labels = ref$label.main)
-pred
 Meta3$singleR.labels <- pred$labels[match(rownames(Meta3@Meta3.data),rownames(pred))]
 DimPlot(Meta3, reduction = 'umap', group.by = 'singleR.labels')
 plotScoreHeatmap(pred)
@@ -64,6 +62,7 @@ tab <- table(Assigned=pred$labels, Clusters=Meta3$seurat_clusters)
 pheatmap(log10(tab+10), color = colorRampPalette(c('white','blue'))(10))
 
 saveRDS(Meta3, file = "C:/Users/leiah/OneDrive - University of Southampton/Dissertation/DataM3.rds")
+
 cluster0.markers <- FindMarkers(Meta3, ident.1 = 0)
 head(cluster0.markers, n = 5)
 cluster2.markers <- FindMarkers(Meta3, ident.1 = 2)
@@ -95,6 +94,13 @@ Meta3.markers %>%
   group_by(cluster) %>%
   dplyr::filter(avg_log2FC > 1)
 cluster0.markers <- FindMarkers(Meta3, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
+Meta3.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC > 1) %>%
+  slice_head(n = 6) %>%
+  ungroup() -> top6
+DoHeatmap(Meta3, features = top6$gene) + NoLegend()
+
 VlnPlot(Meta3, features = c("GNA11", "GNAQ"), y.max = 4)
 VlnPlot(Meta3, features = c("EIF1AX", "SF3B1"), y.max = 4)
 VlnPlot(Meta3, features = c("JUN", "JUNB"))
@@ -115,6 +121,7 @@ VlnPlot(Meta3, features = c("YAP1", "TNF"))
 VlnPlot(Meta3, features = c("SPP1"))
 VlnPlot(Meta3, features = c("PIK3CA"))
 VlnPlot(Meta3, features = c("BRAF", "NRAS", "KIT", "NF1"))
+
 FeaturePlot(Meta3, features = c("BIRC3", "IL1B", "BCL2A1","CXCL8", "TNFAIP3", "ICAM1", "PLAU"))
 FeaturePlot(Meta3, features = c("XIAP", "apollon", "ML-IAP","Survivin", "Naip", "BIRC2", "BIRC8"))
 FeaturePlot(Meta3, features = c("S100A6", "CITED6", "PAEP","QPCT", "CCL4", "STAB1", "PDE4B"))
@@ -134,12 +141,7 @@ FeaturePlot(Meta3, features = c("HIF1A", "TP53", "BMF","BAD", "CXCR2"))
 FeaturePlot(Meta3, features = c("BAP1", "PLAU", "PLAUR", "PMEL"))
 FeaturePlot(Meta3, features = c("SERTAD1", "IER2", "STAT3", "PLEKHB2"))
 FeaturePlot(Meta3, features = c("SERTAD1", "ICE2", "MAFF", "TADA1"))
-Meta3.markers %>%
-  group_by(cluster) %>%
-  dplyr::filter(avg_log2FC > 1) %>%
-  slice_head(n = 6) %>%
-  ungroup() -> top6
-DoHeatmap(Meta3, features = top6$gene) + NoLegend()
+
 
 
 
