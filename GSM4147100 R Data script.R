@@ -121,6 +121,7 @@ VlnPlot(Meta3, features = c("YAP1", "TNF"))
 VlnPlot(Meta3, features = c("SPP1"))
 VlnPlot(Meta3, features = c("PIK3CA"))
 VlnPlot(Meta3, features = c("BRAF", "NRAS", "KIT", "NF1"))
+VlnPlot(Prim, features = c("CD163", "CD68"))
 
 FeaturePlot(Meta3, features = c("BIRC3", "IL1B", "BCL2A1","CXCL8", "TNFAIP3", "ICAM1", "PLAU"))
 FeaturePlot(Meta3, features = c("XIAP", "apollon", "ML-IAP","Survivin", "Naip", "BIRC2", "BIRC8"))
@@ -141,6 +142,7 @@ FeaturePlot(Meta3, features = c("HIF1A", "TP53", "BMF","BAD", "CXCR2"))
 FeaturePlot(Meta3, features = c("BAP1", "PLAU", "PLAUR", "PMEL"))
 FeaturePlot(Meta3, features = c("SERTAD1", "IER2", "STAT3", "PLEKHB2"))
 FeaturePlot(Meta3, features = c("SERTAD1", "ICE2", "MAFF", "TADA1"))
+FeaturePlot(Prim, features = c("CD163", "CD68"))
 
 
 
