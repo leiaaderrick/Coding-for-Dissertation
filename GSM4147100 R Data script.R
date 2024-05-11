@@ -144,6 +144,52 @@ FeaturePlot(Meta3, features = c("SERTAD1", "IER2", "STAT3", "PLEKHB2"))
 FeaturePlot(Meta3, features = c("SERTAD1", "ICE2", "MAFF", "TADA1"))
 FeaturePlot(Prim, features = c("CD163", "CD68"))
 
+# Chromosome plot 
+library(EnsDb.Hsapiens.v75)
+edb <- EnsDb.Hsapiens.v75
+gene_symbols <- rownames(seu)
+genes <- genes(edb, filter = GeneNameFilter(gene_symbols))
+genes <- as.data.frame(genes)
+chromosome_info <- data.frame(
+  gene_symbol = genes$gene_name,
+  chromosome = genes$seqnames)
+chromosome_vector <- setNames(chromosome_info$chromosome, chromosome_info$gene_symbol)
+expression_data <- GetAssayData(seu, slot = "data")
+gene_chromosome_map <- data.frame(
+  gene = rownames(expression_data),
+  chromosome = chromosome_vector[rownames(expression_data)],
+  stringsAsFactors = FALSE)
+expression_and_chromosome <- expression_data %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("gene") %>%
+  inner_join(gene_chromosome_map, by = "gene")
+average_expression_by_chromosome <- expression_and_chromosome %>%
+  group_by(chromosome) %>%
+  summarise(across(-gene, sum))
+average_expression_by_chromosome_mtx <- as.data.frame(average_expression_by_chromosome)
+average_expression_by_chromosome_mtx <- average_expression_by_chromosome_mtx[-72,]
+rownames(average_expression_by_chromosome_mtx) <- average_expression_by_chromosome_mtx[,1]
+average_expression_by_chromosome_mtx <- average_expression_by_chromosome_mtx[,-1]
+column_sums <- colSums(average_expression_by_chromosome_mtx)
+normalized_matrix <- sweep(average_expression_by_chromosome_mtx, 2, column_sums, `/`)
+library(reshape2)
+rows_to_keep <- !grepl("PATCH", rownames(normalized_matrix))
+normalized_matrix <- normalized_matrix[rows_to_keep, ]
+rows_to_keep <- !grepl("GL", rownames(normalized_matrix))
+normalized_matrix <- normalized_matrix[rows_to_keep, ]
+long_data <- as.data.frame(normalized_matrix)
+long_data$Chromosome <- rownames(normalized_matrix)
+long_data <- reshape2::melt(long_data, id.vars = "Chromosome")
+names(long_data) <- c("Chromosome", "Cell", "Value")
+selected_chromosomes_data <- long_data[long_data$Chromosome %in% c("1", "3"),]
+plot<-ggplot(selected_chromosomes_data, aes(x = Value, fill = Chromosome)) +
+  geom_histogram(bins = 30, alpha = 0.7, position = "identity") +  # Adjust alpha for transparency
+  scale_fill_manual(values = c("blue", "red")) +  # Manually set colors for each chromosome
+  labs(title = "Distribution of Reads Mapping to Chromosome 1 and 3",
+       x = "Proportion of Reads",
+       y = "Count") +
+  theme_minimal()
+
 
 
 
