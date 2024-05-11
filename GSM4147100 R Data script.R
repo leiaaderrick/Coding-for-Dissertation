@@ -147,14 +147,14 @@ FeaturePlot(Prim, features = c("CD163", "CD68"))
 # Chromosome plot 
 library(EnsDb.Hsapiens.v75)
 edb <- EnsDb.Hsapiens.v75
-gene_symbols <- rownames(seu)
+gene_symbols <- rownames(Meta3)
 genes <- genes(edb, filter = GeneNameFilter(gene_symbols))
 genes <- as.data.frame(genes)
 chromosome_info <- data.frame(
   gene_symbol = genes$gene_name,
   chromosome = genes$seqnames)
 chromosome_vector <- setNames(chromosome_info$chromosome, chromosome_info$gene_symbol)
-expression_data <- GetAssayData(seu, slot = "data")
+expression_data <- GetAssayData(Meta3, slot = "data")
 gene_chromosome_map <- data.frame(
   gene = rownames(expression_data),
   chromosome = chromosome_vector[rownames(expression_data)],
